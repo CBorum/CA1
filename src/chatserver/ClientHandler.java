@@ -5,10 +5,83 @@
  */
 package chatserver;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Borum
  */
-public class ClientHandler {
+public class ClientHandler extends Thread {
+
+    private Socket socket;
+    private Scanner input;
+    private PrintWriter writer;
+    private boolean keepRunning = true;
+    private String user;
+
+    public ClientHandler(Socket socket) {
+        this.socket = socket;
+        try {
+            input = new Scanner(socket.getInputStream());
+            writer = new PrintWriter(socket.getOutputStream(), true);
+        } catch (IOException ex) {
+            Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void run() {
+        while (keepRunning) {
+            String[] message = input.nextLine().split("#");
+            switch (message[0]) {
+                case "USER":
+                    user(message);
+                    break;
+                case "SEND":
+                    send(message);
+                    break;
+                case "LOGOUT":
+                    logout();
+                    break;
+            }
+        }
+    }
     
+    private void user(String[] message) {
+        try {
+            this.user = message[1];
+            Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} connected", user);
+            //report this user joined
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void send(String[] message) {
+        try {
+            Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} to " + message[1] + ": " + message[2], user);
+            //handle send message to specific
+            
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void logout() {
+        keepRunning = false;
+        Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} has disconnected", user);
+        try {
+            socket.close();
+            System.out.println("Closed a Connection");
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //report this user disconnected
+    }
+
 }
