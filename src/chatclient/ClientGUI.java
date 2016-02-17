@@ -28,8 +28,8 @@ public class ClientGUI extends javax.swing.JFrame implements Observer{
         initComponents();
         try {
             System.out.println("ip: " + ip + ", port:" + port);
-            //cc.connect("13.69.255.236", 9090);
-            cc.connect("localhost", 9090);
+            cc.connect("13.69.255.236", 9090);
+            //cc.connect("localhost", 9090);
             cc.addObserver(this);
             recievedTextArea.append("Connected");
         } catch (IOException ex) {

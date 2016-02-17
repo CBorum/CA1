@@ -91,7 +91,7 @@ public class ChatServer {
     }
     
     public void notifyUsers() {
-        String msg = "MESSAGE#";
+        String msg = "USERS#";
         for (ClientHandler client : clients) {
             msg += client.getUser() + ',';
         }
