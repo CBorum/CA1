@@ -53,8 +53,6 @@ public class ChatClient extends Observable implements Runnable {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        setChanged();
-        notifyObservers(msg);
         return msg;
 
     }

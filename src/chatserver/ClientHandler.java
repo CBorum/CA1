@@ -8,6 +8,7 @@ package chatserver;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +26,7 @@ public class ClientHandler extends Thread {
     private PrintWriter writer;
     private boolean keepRunning = true;
     private String user;
-
+    
     public ClientHandler(ChatServer server, Socket socket) {
         this.server = server;
         this.socket = socket;
@@ -36,26 +37,30 @@ public class ClientHandler extends Thread {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     @Override
     public void run() {
 //        writer.println("Please enter your username:");
 //        user(new String[]{"USER", input.nextLine()});
-        while (keepRunning) {
-            String msg = input.nextLine();
-            
-            if (msg.equals("LOGOUT#")) logout();
-            
-            String[] message = msg.split("#");
-            switch (message[0]) {
-                case "USER":
-                    user(message);
-                    break;
-                case "SEND":
-                    send(message);
-                    break;
+        try {
+            while (keepRunning) {
+                String msg = input.nextLine();
+                if (msg.equals("LOGOUT#")) {
+                    logout();
+                }
+                String[] message = msg.split("#");
+                switch (message[0]) {
+                    case "USER":
+                        user(message);
+                        break;
+                    case "SEND":
+                        send(message);
+                        break;
+                }
             }
-            //System.out.println("setting changed notify");
+        } catch (NoSuchElementException ex) {
+            Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, user + " force closed connection", ex);
+            server.removeHandler(this);
         }
     }
     
@@ -85,7 +90,7 @@ public class ClientHandler extends Thread {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public String getUser() {
         return user;
     }
@@ -106,5 +111,5 @@ public class ClientHandler extends Thread {
         }
         //report this user disconnected
     }
-
+    
 }
