@@ -8,6 +8,7 @@ package chatserver;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Observable;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ import log.Log;
  *
  * @author Borum
  */
-public class ClientHandler extends Thread {
+public class ClientHandler extends Observable implements Runnable{
 
     private Socket socket;
     private Scanner input;
@@ -26,6 +27,7 @@ public class ClientHandler extends Thread {
     private String user;
 
     public ClientHandler(Socket socket) {
+        
         this.socket = socket;
         try {
             input = new Scanner(socket.getInputStream());
@@ -52,17 +54,23 @@ public class ClientHandler extends Thread {
                     logout();
                     break;
             }
+            System.out.println("setting changed notify");
+            setChanged();
+            notifyObservers();
         }
     }
     
     private void user(String[] message) {
         try {
             this.user = message[1];
-            Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} connected", user);
+            Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} connected", this.user);
             //report this user joined
             
+<<<<<<< HEAD
             
             
+=======
+>>>>>>> server
         } catch (ArrayIndexOutOfBoundsException ex) {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
         }
@@ -90,7 +98,6 @@ public class ClientHandler extends Thread {
         Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} has disconnected", user);
         try {
             socket.close();
-            System.out.println("Closed a Connection");
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
