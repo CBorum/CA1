@@ -6,7 +6,7 @@
 package chatclient;
 
 import chatserver.ClientHandler;
-import chatserver.Log;
+import log.Log;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
