@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import log.Log;
 
 /**
  *
@@ -36,6 +37,8 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
+        writer.println("Please enter your username:");
+        user(new String[]{"USER", input.nextLine()});
         while (keepRunning) {
             String[] message = input.nextLine().split("#");
             switch (message[0]) {
@@ -57,6 +60,9 @@ public class ClientHandler extends Thread {
             this.user = message[1];
             Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} connected", user);
             //report this user joined
+            
+            
+            
         } catch (ArrayIndexOutOfBoundsException ex) {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
         }
@@ -65,12 +71,19 @@ public class ClientHandler extends Thread {
     private void send(String[] message) {
         try {
             Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} to " + message[1] + ": " + message[2], user);
+            
             //handle send message to specific
             
         } catch (ArrayIndexOutOfBoundsException ex) {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
         }
     }
+
+    public String getUser() {
+        return user;
+    }
+    
+    
     
     private void logout() {
         keepRunning = false;
