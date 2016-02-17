@@ -8,7 +8,6 @@ package chatserver;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Observable;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,16 +17,17 @@ import log.Log;
  *
  * @author Borum
  */
-public class ClientHandler extends Observable implements Runnable{
-
+public class ClientHandler extends Thread {
+    
+    private ChatServer server;
     private Socket socket;
     private Scanner input;
     private PrintWriter writer;
     private boolean keepRunning = true;
     private String user;
 
-    public ClientHandler(Socket socket) {
-        
+    public ClientHandler(ChatServer server, Socket socket) {
+        this.server = server;
         this.socket = socket;
         try {
             input = new Scanner(socket.getInputStream());
@@ -39,10 +39,14 @@ public class ClientHandler extends Observable implements Runnable{
 
     @Override
     public void run() {
-        writer.println("Please enter your username:");
-        user(new String[]{"USER", input.nextLine()});
+//        writer.println("Please enter your username:");
+//        user(new String[]{"USER", input.nextLine()});
         while (keepRunning) {
-            String[] message = input.nextLine().split("#");
+            String msg = input.nextLine();
+            
+            if (msg.equals("LOGOUT#")) logout();
+            
+            String[] message = msg.split("#");
             switch (message[0]) {
                 case "USER":
                     user(message);
@@ -50,14 +54,13 @@ public class ClientHandler extends Observable implements Runnable{
                 case "SEND":
                     send(message);
                     break;
-                case "LOGOUT":
-                    logout();
-                    break;
             }
-            System.out.println("setting changed notify");
-            setChanged();
-            notifyObservers();
+            //System.out.println("setting changed notify");
         }
+    }
+    
+    public void message(String[] msg) {
+        writer.println(msg[0] + "#" + msg[1] + "#" + msg[2]);
     }
     
     private void user(String[] message) {
@@ -65,21 +68,17 @@ public class ClientHandler extends Observable implements Runnable{
             this.user = message[1];
             Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} connected", this.user);
             //report this user joined
+            server.notifyUsers();
             
-<<<<<<< HEAD
-            
-            
-=======
->>>>>>> server
         } catch (ArrayIndexOutOfBoundsException ex) {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, null, ex);
         }
     }
     
-    private void send(String[] message) {
+    public void send(String[] message) {
         try {
             Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} to " + message[1] + ": " + message[2], user);
-            
+            server.send(message, this.getUser());
             //handle send message to specific
             
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -91,11 +90,15 @@ public class ClientHandler extends Observable implements Runnable{
         return user;
     }
     
-    
+    public void users(String msg) {
+        writer.println(msg);
+    }
     
     private void logout() {
         keepRunning = false;
         Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "{0} has disconnected", user);
+        
+        server.removeHandler(this);
         try {
             socket.close();
         } catch (IOException ex) {

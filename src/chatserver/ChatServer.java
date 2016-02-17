@@ -11,11 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< HEAD
-=======
-import java.util.Observable;
-import java.util.Observer;
->>>>>>> server
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import log.Log;
@@ -24,21 +19,12 @@ import log.Log;
  *
  * @author Borum
  */
-<<<<<<< HEAD
 public class ChatServer {
 
     private ServerSocket serverSocket;
     private boolean keepRunning = true;
     private List<ClientHandler> clients = new ArrayList();
 
-=======
-public class ChatServer implements Observer{
-    
-    private ServerSocket serverSocket;
-    private boolean keepRunning = true;
-    private ClientHandler ch;
-    
->>>>>>> server
     public static void main(String[] args) {
         try {
             Log.setLogFile("LogFile.txt", "ServerLog");
@@ -59,15 +45,9 @@ public class ChatServer implements Observer{
             do {
                 Socket socket = serverSocket.accept();
                 Logger.getLogger(Log.LOG_NAME).log(Level.INFO, "Connected to a client");
-<<<<<<< HEAD
-                ClientHandler client = new ClientHandler(socket);
+                ClientHandler client = new ClientHandler(this, socket);
                 clients.add(client);
                 client.start();
-=======
-                ch = new ClientHandler(socket);
-                new Thread(new ClientHandler(socket)).start();
-                ch.addObserver(this);
->>>>>>> server
             } while (keepRunning);
         } catch (IOException ex) {
             Logger.getLogger(Log.LOG_NAME).log(Level.SEVERE, "IOException in runserver", ex);
@@ -78,7 +58,6 @@ public class ChatServer implements Observer{
         keepRunning = false;
     }
 
-<<<<<<< HEAD
     private int findClient(String userName) {
         for (int i = 0; i < clients.size(); i++) {
             if (clients.get(i).getUser().equals(userName)) {
@@ -87,12 +66,45 @@ public class ChatServer implements Observer{
         }
         return -1;
     }
-
-=======
-    @Override
-    public void update(Observable o, Object arg) {
-        System.out.println("update method");
+    
+    public void send(String[] msg, String user) {
+        String[] users = msg[1].split(",");
+        msg[0] = "MESSAGE";
+        if (msg[1].equals("*")) {
+            for (ClientHandler client : clients) {
+                if (!client.getUser().equals(user)) {
+                    msg[1] = user;
+                    client.message(msg);
+                }
+            }
+        } else {
+            for (String user1 : users) {
+                for (ClientHandler client : clients) {
+                    if (user1.equals(client.getUser())) {
+                        msg[1] = user;
+                        client.message(msg);
+                    }
+                }        
+            }
+            
+        }  
     }
     
->>>>>>> server
+    public void notifyUsers() {
+        String msg = "MESSAGE#";
+        for (ClientHandler client : clients) {
+            msg += client.getUser() + ',';
+        }
+        msg = msg.substring(0, msg.length() - 1);
+        for (ClientHandler client : clients) {
+            client.users(msg);
+        }
+        
+    }
+    
+    public void removeHandler(ClientHandler client) {
+        clients.remove(client);
+        this.notifyUsers();
+    }
+
 }
