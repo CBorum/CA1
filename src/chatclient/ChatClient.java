@@ -5,13 +5,12 @@
  */
 package chatclient;
 
-import chatserver.ClientHandler;
-import log.Log;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -28,6 +27,7 @@ public class ChatClient extends Observable implements Runnable {
     private InetAddress serverAddress;
     private Scanner input;
     private PrintWriter output;
+    private boolean keepRunning = true;
 
     public void connect(String address, int port) throws UnknownHostException, IOException {
         serverAddress = InetAddress.getByName(address);
@@ -42,6 +42,7 @@ public class ChatClient extends Observable implements Runnable {
 
     public void stop() {
         output.println(ProtocolStrings.LOGOUT);
+        keepRunning = false;
     }
 
     public String receive() {
@@ -59,16 +60,23 @@ public class ChatClient extends Observable implements Runnable {
 
     @Override
     public void run() {
-        String msg = input.nextLine();
-        if (msg.equals(ProtocolStrings.LOGOUT)) {
+        while (keepRunning) {
             try {
-                socket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+                String msg = input.nextLine();
+                if (msg.equals(ProtocolStrings.LOGOUT)) {
+                    try {
+                        socket.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                setChanged();
+                notifyObservers(msg);
+            } catch (NoSuchElementException ex) {
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, "Connection closed", ex);
+                keepRunning = false;
             }
         }
-        setChanged();
-        notifyObservers(msg);
     }
 
 }

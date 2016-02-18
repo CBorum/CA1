@@ -10,17 +10,18 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 
 /**
  *
  * @author Borum
  */
-public class ClientGUI extends javax.swing.JFrame implements Observer{
-    
+public class ClientGUI extends javax.swing.JFrame implements Observer {
+
     private static String ip;
     private static int port;
     private ChatClient cc = new ChatClient();
-    
+
     /**
      * Creates new form ClientGUI
      */
@@ -32,6 +33,7 @@ public class ClientGUI extends javax.swing.JFrame implements Observer{
             //cc.connect("localhost", 9090);
             cc.addObserver(this);
             recievedTextArea.append("Connected");
+            new Thread(cc).start();
         } catch (IOException ex) {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -181,15 +183,19 @@ public class ClientGUI extends javax.swing.JFrame implements Observer{
     private javax.swing.JTextField textInputField;
     private javax.swing.JTextArea users;
     // End of variables declaration//GEN-END:variables
-    
+
     public void actionSendMessage() {
+        if (textInputField.getText().equals("LOGOUT#")) {
+            cc.stop();
+            setVisible(false);
+            dispose();
+        }
         if (!textInputField.getText().trim().isEmpty()) {
             cc.send(textInputField.getText());
-            new Thread(cc).start();
             textInputField.setText("");
         }
     }
-    
+
     @Override
     public void update(Observable o, Object arg) {
         String returnedMessage = (String) arg;
