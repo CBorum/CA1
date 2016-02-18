@@ -34,11 +34,10 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
         initComponents();
         while (username == null) {
             username = JOptionPane.showInputDialog("Enter username");
-            
         }
         try {
             usernameLabel.setText(username);
-            System.out.println("ip: " + ip + ", port:" + port);
+//            System.out.println("ip: " + ip + ", port:" + port);
             cc.connect("13.69.255.236", 9090);
             cc.send("USER#" + username);
             cc.addObserver(this);

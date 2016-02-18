@@ -66,30 +66,35 @@ public class ChatServer {
         }
         return -1;
     }
-    
+
     public void send(String[] msg, String user) {
-        String[] users = msg[1].split(",");
+        String users = msg[1];
+        String[] usersSplit = users.split(",");
         msg[0] = "MESSAGE";
         if (msg[1].equals("*")) {
             for (ClientHandler client : clients) {
-                if (!client.getUser().equals(user)) {
-                    msg[1] = user;
-                    client.message(msg);
-                }
+                msg[1] = user;
+                client.message(msg);
             }
         } else {
-            for (String user1 : users) {
+            for (ClientHandler client : clients) { //makes sense or stupid?
+                if (client.getUser().equals(user)) {
+                        msg[1] = "To " + users;
+                        client.message(msg);
+                }
+            }
+            for (String user1 : usersSplit) {
                 for (ClientHandler client : clients) {
                     if (user1.equals(client.getUser())) {
                         msg[1] = user;
                         client.message(msg);
                     }
-                }        
+                }
             }
             
-        }  
+        }
     }
-    
+
     public void notifyUsers() {
         String msg = "USERS#";
         for (ClientHandler client : clients) {
@@ -99,9 +104,9 @@ public class ChatServer {
         for (ClientHandler client : clients) {
             client.users(msg);
         }
-        
+
     }
-    
+
     public void removeHandler(ClientHandler client) {
         clients.remove(client);
         this.notifyUsers();
