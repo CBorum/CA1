@@ -11,6 +11,7 @@ import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -21,16 +22,20 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
     private static String ip;
     private static int port;
     private ChatClient cc = new ChatClient();
+    private String username;
 
     /**
      * Creates new form ClientGUI
      */
     public ClientGUI() {
         initComponents();
+        while (username == null) {
+            username = JOptionPane.showInputDialog("Enter username");
+        }
         try {
             System.out.println("ip: " + ip + ", port:" + port);
             cc.connect("13.69.255.236", 9090);
-            //cc.connect("localhost", 9090);
+            cc.send("USER#" + username);
             cc.addObserver(this);
             recievedTextArea.append("Connected");
             new Thread(cc).start();
@@ -53,7 +58,7 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
         textInputField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        users = new javax.swing.JTextArea();
+        userList = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -82,11 +87,11 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
             }
         });
 
-        users.setEditable(false);
-        users.setColumns(20);
-        users.setRows(5);
-        users.setFocusable(false);
-        jScrollPane2.setViewportView(users);
+        userList.setEditable(false);
+        userList.setColumns(20);
+        userList.setRows(5);
+        userList.setFocusable(false);
+        jScrollPane2.setViewportView(userList);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -181,7 +186,7 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea recievedTextArea;
     private javax.swing.JTextField textInputField;
-    private javax.swing.JTextArea users;
+    private javax.swing.JTextArea userList;
     // End of variables declaration//GEN-END:variables
 
     public void actionSendMessage() {
@@ -189,8 +194,8 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
             cc.stop();
             setVisible(false);
             dispose();
-        }
-        if (!textInputField.getText().trim().isEmpty()) {
+        } else if (!textInputField.getText().trim().isEmpty()) {
+            recievedTextArea.append("\n" + textInputField.getText()); //for testing
             cc.send(textInputField.getText());
             textInputField.setText("");
         }
@@ -199,7 +204,23 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         String returnedMessage = (String) arg;
-        recievedTextArea.append("\n" + returnedMessage);
-        recievedTextArea.setCaretPosition(recievedTextArea.getDocument().getLength());
+//        recievedTextArea.append("\n" + returnedMessage);
+//        recievedTextArea.setCaretPosition(recievedTextArea.getDocument().getLength());
+        
+        String[] msg = returnedMessage.split("#");
+        switch (msg[0]) {
+            case "USERS":
+                String[] users = msg[1].split(",");
+                userList.removeAll();
+                for (String user : users) {
+                    //if username == this username
+                    userList.append(user + "\n");
+                }
+                break;
+            case "MESSAGE":
+                recievedTextArea.append("\n" + msg[1] + ": " + msg[2]);
+                recievedTextArea.setCaretPosition(recievedTextArea.getDocument().getLength());
+                break;
+        }
     }
 }
