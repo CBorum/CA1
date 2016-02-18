@@ -10,6 +10,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -23,11 +24,13 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
     private static int port;
     private ChatClient cc = new ChatClient();
     private String username;
+    private DefaultListModel<String> usersIn;
 
     /**
      * Creates new form ClientGUI
      */
     public ClientGUI() {
+        usersIn = new DefaultListModel<String>();
         initComponents();
         while (username == null) {
             username = JOptionPane.showInputDialog("Enter username");
@@ -59,11 +62,11 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
         recievedTextArea = new javax.swing.JTextArea();
         textInputField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        userList = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         usernameLabel = new javax.swing.JLabel();
         logoutBtn = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        usersList = new javax.swing.JList<>(usersIn);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -92,12 +95,6 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
             }
         });
 
-        userList.setEditable(false);
-        userList.setColumns(20);
-        userList.setRows(5);
-        userList.setFocusable(false);
-        jScrollPane2.setViewportView(userList);
-
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
 
         logoutBtn.setText("Logout");
@@ -124,6 +121,8 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
                 .addComponent(usernameLabel))
         );
 
+        jScrollPane3.setViewportView(usersList);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -131,12 +130,12 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                     .addComponent(textInputField))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3))
                 .addContainerGap())
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -147,7 +146,7 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2))
+                    .addComponent(jScrollPane3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textInputField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -224,24 +223,47 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton logoutBtn;
     private javax.swing.JTextArea recievedTextArea;
     private javax.swing.JTextField textInputField;
-    private javax.swing.JTextArea userList;
     private javax.swing.JLabel usernameLabel;
+    private javax.swing.JList<String> usersList;
     // End of variables declaration//GEN-END:variables
 
     public void actionSendMessage() {
-        if (textInputField.getText().equals("LOGOUT#")) {
-            cc.stop();
-            setVisible(false);
-            dispose();
-        } else if (!textInputField.getText().trim().isEmpty()) {
-            recievedTextArea.append("\n" + textInputField.getText()); //for testing
-            cc.send(textInputField.getText());
-            textInputField.setText("");
+//        if (textInputField.getText().equals("LOGOUT#")) {
+//            cc.stop();
+//            setVisible(false);
+//            dispose();
+//        } else if (!textInputField.getText().trim().isEmpty()) {
+//            recievedTextArea.append("\n" + textInputField.getText()); //for testing
+//            cc.send(textInputField.getText());
+//            textInputField.setText("");
+//        }
+        int[] usersInt = usersList.getSelectedIndices();
+        String sendString = "SEND#";
+        System.out.println(usersInt);
+        if (usersInt.length == 1 && usersIn.get(usersInt[0]).equals("All")) {
+            sendString += "*";
+        } else {
+            for (int i = 0; i < usersInt.length; i++) {
+                String userName = usersIn.get(usersInt[i]);
+                if (!userName.equals("All")) {
+                    sendString += userName + ',';
+                }
+            }
+            sendString = sendString.substring(0, sendString.length() - 1);
         }
+        
+        sendString += '#' + textInputField.getText();
+        cc.send(sendString);
+        
+        textInputField.setText("");
+        //System.out.println(users);
+//        recievedTextArea.append("\n" + textInputField.getText()); //for testing
+//        cc.send(textInputField.getText());
+//        textInputField.setText("");
     }
 
     @Override
@@ -255,10 +277,12 @@ public class ClientGUI extends javax.swing.JFrame implements Observer {
             case "USERS":
                 String[] users = msg[1].split(",");
                 System.out.println(msg[1]);
-                userList.removeAll();
+                usersIn.clear();
+                usersIn.addElement("All");
+                usersList.setSelectedIndex(0);
                 for (String user : users) {
                     //if username == this username
-                    userList.append(user + "\n");
+                    usersIn.addElement(user);
                 }
                 break;
             case "MESSAGE":
