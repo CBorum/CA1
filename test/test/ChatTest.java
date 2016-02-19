@@ -50,24 +50,26 @@ public class ChatTest {
         //   ClientHandler client = new ClientHandler();
         client.connect("localhost", 9999);
         System.out.println("Hejhej");
-        client.send("SEND#*#kanon");
-        client.addObserver(new Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                assertEquals("MESSAGE#null#Hello", arg);
-            }
-
-        });
-        Thread recieve = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Hejmeddig");
-                client.receive();
-            }
-        });
-        recieve.start();
-        System.out.println("nejnej");
-        recieve.join();
+        client.send("SEND#*#Hello");
+        assertEquals("MESSAGE#null#Hello", client.receive());
+        
+//        client.addObserver(new Observer() {
+//            @Override
+//            public void update(Observable o, Object arg) {
+//                assertEquals("MESSAGE#null#Hello", arg);
+//            }
+//
+//        });
+//        Thread recieve = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                System.out.println("Hejmeddig");
+//                client.receive();
+//            }
+//        });
+//        recieve.start();
+//        System.out.println("nejnej");
+//        recieve.join();//
     }
 
     // TODO add test methods here.
