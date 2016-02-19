@@ -47,6 +47,7 @@ public class ChatClient extends Observable implements Runnable {
 
     public String receive() {
         String msg = input.nextLine();
+        System.out.println(msg);
         if (msg.equals(ProtocolStrings.LOGOUT)) {
             try {
                 socket.close();

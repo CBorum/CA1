@@ -1,14 +1,8 @@
-feb. 17, 2016 1:45:20 PM chatserver.ChatServer main
+feb. 19, 2016 1:37:41 PM chatserver.ChatServer main
 INFO: Starting the Server
-feb. 17, 2016 1:45:20 PM chatserver.ChatServer runServer
-INFO: Server listening on: 8080, bound to: localhost
-feb. 17, 2016 1:45:23 PM chatserver.ChatServer runServer
+feb. 19, 2016 1:37:41 PM chatserver.ChatServer runServer
+INFO: Server listening on: 9999, bound to: localhost
+feb. 19, 2016 1:37:42 PM chatserver.ChatServer runServer
 INFO: Connected to a client
-feb. 17, 2016 1:45:26 PM chatserver.ChatServer runServer
-INFO: Connected to a client
-feb. 17, 2016 1:45:28 PM chatserver.ChatServer runServer
-INFO: Connected to a client
-feb. 17, 2016 1:45:39 PM chatserver.ClientHandler user
-INFO: Mats connected
-feb. 17, 2016 1:46:19 PM chatserver.ClientHandler logout
-INFO: Mats has disconnected
+feb. 19, 2016 1:37:42 PM chatserver.ClientHandler send
+INFO: null to *: kanon

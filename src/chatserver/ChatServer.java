@@ -22,7 +22,7 @@ import log.Log;
 public class ChatServer {
 
     private ServerSocket serverSocket;
-    private boolean keepRunning = true;
+    private static boolean keepRunning = true;
     private List<ClientHandler> clients = new ArrayList();
 
     public static void main(String[] args) {
@@ -54,7 +54,7 @@ public class ChatServer {
         }
     }
 
-    private void stopServer() {
+    public static void stopServer() {
         keepRunning = false;
     }
 
