@@ -1,0 +1,28 @@
+feb. 19, 2016 3:35:31 PM chatserver.ChatServer main
+INFO: Starting the Server
+feb. 19, 2016 3:35:31 PM chatserver.ChatServer runServer
+INFO: Server listening on: 9999, bound to: localhost
+feb. 19, 2016 3:35:32 PM chatserver.ChatServer runServer
+INFO: Connected to a client
+feb. 19, 2016 3:35:32 PM chatserver.ChatServer runServer
+INFO: Connected to a client
+feb. 19, 2016 3:35:32 PM chatserver.ClientHandler user
+INFO: Test connected
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler user
+INFO: Test2 connected
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler logout
+INFO: Test2 has disconnected
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler logout
+INFO: Test has disconnected
+feb. 19, 2016 3:35:33 PM chatserver.ChatServer runServer
+INFO: Connected to a client
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler send
+INFO: null to *: Hello
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler logout
+INFO: null has disconnected
+feb. 19, 2016 3:35:33 PM chatserver.ChatServer runServer
+INFO: Connected to a client
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler user
+INFO: Test connected
+feb. 19, 2016 3:35:33 PM chatserver.ClientHandler logout
+INFO: Test has disconnected
