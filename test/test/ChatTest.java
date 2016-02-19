@@ -9,6 +9,7 @@ import chatclient.ChatClient;
 import chatserver.ChatServer;
 import chatserver.ClientHandler;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.util.Observable;
 import java.util.Observer;
 import org.junit.After;
@@ -25,7 +26,9 @@ import static org.junit.Assert.*;
 public class ChatTest {
     public ChatTest() {
     }
-
+    
+    static String testString = "";
+    
     @BeforeClass
     public static void setUpClass() throws IOException, InterruptedException {
         new Thread(new Runnable() {
@@ -43,55 +46,70 @@ public class ChatTest {
         ChatServer.stopServer();
     }
 
-//    @Test
-//    public void send() throws IOException, InterruptedException {
-//        ChatClient client = new ChatClient();
-//        
-//        Thread t1 = new Thread(client);
-//        
-//        t1.start();
-//        
-//        client.connect("localhost", 9999);
-//        client.send("SEND#*#Hello");
-//        assertEquals("MESSAGE#null#Hello", client.receive());
-//        client.stop();
-//        t1.join();
-////        client.addObserver(new Observer() {
-////            @Override
-////            public void update(Observable o, Object arg) {
-////                assertEquals("MESSAGE#null#Hello", arg);
-////            }
-////
-////        });
-////        Thread recieve = new Thread(new Runnable() {
-////            @Override
-////            public void run() {
-////                System.out.println("Hejmeddig");
-////                client.receive();
-////            }
-////        });
-////        recieve.start();
-////        System.out.println("nejnej");
-////        recieve.join();
-//    }
+    @Test
+    public void send() throws IOException, InterruptedException {
+        testString = "";
+        ChatClient client = new ChatClient();
+        
+        client.connect("localhost", 9999);
+        
+        Thread t1 = new Thread(client);
+        
+        t1.start();
+        
+        client.addObserver(new Observer() {
+            
+            @Override
+            public void update(Observable o, Object arg) {
+                testString = (String) arg;
+                ChatClient cl = (ChatClient) o;
+                client.stop();
+            }
+        });
+        
+        client.send("SEND#*#Hello");
+        
+        t1.join();
+        
+        assertEquals("MESSAGE#null#Hello", testString);
+    }
 
-//    @Test
-//    public void user() throws IOException {
-//        ChatClient client = new ChatClient();
-//        client.connect("localhost", 9999);
-//        client.send("USER#Test");
-//        assertEquals("USERS#Test", client.receive());
-//        client.stop();
-//    }
+    @Test
+    public void user() throws IOException, InterruptedException {
+        testString = "";
+        ChatClient client = new ChatClient();
+        client.connect("localhost", 9999);
+        
+        Thread t1 = new Thread(client);
+        
+        t1.start();
+        
+        client.send("USER#Test");
+        
+        client.addObserver(new Observer() {
+            
+            @Override
+            public void update(Observable o, Object arg) {
+                testString = (String) arg;
+                ChatClient cl = (ChatClient) o;
+                client.stop();
+            }
+        });
+        
+        t1.join();
+        
+        assertEquals("USERS#Test", testString);
+    }
 
     @Test
     public void logout() throws IOException, InterruptedException {
+        testString = "";
+        
         ChatClient client = new ChatClient();
         ChatClient client2 = new ChatClient();
         
         client.connect("localhost", 9999);
-        client2.connect("localhost", 9999);
-        
+        client2.connect("localhost", 9999);     
         
         Thread t1 = new Thread(client);
         Thread t2 = new Thread(client2);
@@ -100,15 +118,28 @@ public class ChatTest {
         t2.start();
         
         client.send("USER#Test");
+        
+        sleep(1000);
+        
+        client.addObserver(new Observer() {
+            
+            @Override
+            public void update(Observable o, Object arg) {
+                System.out.println(arg);
+                if (arg.equals("USERS#Test")) {
+                    testString = (String) arg;
+                    ChatClient cl = (ChatClient) o;
+                    client.stop();
+                }
+            }
+        });
+        
         client2.send("USER#Test2");
-        client.send("SEND#*#Hello");
         client2.stop();
-        t2.join();
-        assertEquals("USERS#Test", client.receive());
 
-        client.stop();
-
-        t1.join();
+        t1.join(2000);
+        
+        assertEquals("USERS#Test", testString);
         
     }
 }
